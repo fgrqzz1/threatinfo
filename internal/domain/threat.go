@@ -2,11 +2,6 @@ package domain
 
 import "time"
 
-type (
-	ThreatType string
-	Severity   string
-)
-
 const (
 	ThreatTypeTrojan     ThreatType = "trojan"
 	ThreatTypeWorm       ThreatType = "worm"
@@ -20,6 +15,11 @@ const (
 	SeverityMedium   Severity = "medium"
 	SeverityHigh     Severity = "high"
 	SeverityCritical Severity = "critical"
+)
+
+type (
+	ThreatType string
+	Severity   string
 )
 
 type Threat struct {
