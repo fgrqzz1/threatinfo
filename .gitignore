@@ -15,3 +15,5 @@ coverage.*
 
 # Editors
 .idea/
+
+AGENTS.md
