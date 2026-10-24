@@ -1,5 +1,7 @@
 # Threat Information Service
 
+[![Go](https://img.shields.io/badge/Go-1.26.2-00ADD8?logo=go&logoColor=white)](go.mod)[![API](https://img.shields.io/badge/API-REST-2563EB)](#api)[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0.0-6BA539?logo=openapiinitiative&logoColor=white)](openapi.yaml)[![Storage](https://img.shields.io/badge/Storage-In--memory-F59E0B)](#структура)
+
 HTTP REST API для обмена информацией о файловых угрозах на Go.
 Контракт описан в [openapi.yaml](openapi.yaml), исходное задание — в [task.md](task.md).
 Для HTTP, JSON и тестов используется стандартная библиотека Go.
