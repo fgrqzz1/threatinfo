@@ -33,6 +33,7 @@ func requestJSON(t *testing.T, server *httptest.Server, method, path, body strin
 	req.Header.Set("Content-Type", "application/json")
 	client := server.Client()
 	client.Timeout = 5 * time.Second
+	client.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
 	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatal(err)
@@ -119,6 +120,9 @@ func TestInvalidRequestsIntegration(t *testing.T) {
 		{"unknown_type", strings.Replace(valid, `"other"`, `"virus"`, 1)},
 		{"empty_type", strings.Replace(valid, `"other"`, `""`, 1)},
 		{"unknown_field", strings.TrimSuffix(valid, "}") + `,"unexpected":"x"}`},
+		{"uppercase_name", strings.Replace(valid, `"name"`, `"NAME"`, 1)},
+		{"uppercase_type", strings.Replace(valid, `"type"`, `"TYPE"`, 1)},
+		{"uppercase_optional", strings.TrimSuffix(valid, "}") + `,"Severity":"high"}`},
 		{"empty_severity", strings.TrimSuffix(valid, "}") + `,"severity":""}`},
 		{"unknown_severity", strings.TrimSuffix(valid, "}") + `,"severity":"urgent"}`},
 		{"empty_date", strings.TrimSuffix(valid, "}") + `,"detected_at":""}`},
@@ -143,7 +147,7 @@ func TestInvalidRequestsIntegration(t *testing.T) {
 	requestJSON(t, s, "GET", "/info/"+testMD5, "", 404)
 	requestJSON(t, s, "POST", "/info", valid+" \n\t", 201)
 	before := requestJSON(t, s, "GET", "/info/"+testMD5, "", 200)
-	for _, body := range []string{valid, `{"name":"changed"}`, `{"name":"changed","type":"worm","severity":""}`, `{"name":"changed","type":"worm","detected_at":null}`, `{"name":"changed","type":"worm","unknown":"x"}`} {
+	for _, body := range []string{valid, `{"name":"changed"}`, `{"name":"changed","type":"worm","severity":""}`, `{"name":"changed","type":"worm","detected_at":null}`, `{"name":"changed","type":"worm","unknown":"x"}`, `{"NAME":"changed","type":"worm"}`} {
 		requestJSON(t, s, "PUT", "/info/"+testMD5, body, 400)
 	}
 	after := requestJSON(t, s, "GET", "/info/"+testMD5, "", 200)
@@ -158,6 +162,11 @@ func TestPathsIntegration(t *testing.T) {
 	requestJSON(t, s, "PUT", "/info/bad", `{"name":"x","type":"other"}`, 400)
 	requestJSON(t, s, "PUT", "/info/"+testMD5, `{"name":"x","type":"other"}`, 404)
 	requestJSON(t, s, "GET", "/missing", "", 404)
+	requestJSON(t, s, "GET", "/info/", "", 404)
 	requestJSON(t, s, "DELETE", "/info/"+testMD5, "", 405)
 	requestJSON(t, s, "GET", "/info", "", 405)
+	for _, path := range []string{"/info//" + testMD5, "/info/./" + testMD5, "/info/../missing"} {
+		requestJSON(t, s, "GET", path, "", 400)
+		requestJSON(t, s, "POST", path, `{}`, 400)
+	}
 }

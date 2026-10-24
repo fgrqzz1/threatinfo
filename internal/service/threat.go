@@ -19,7 +19,7 @@ func NewThreatService(repo ThreatRepository) *ThreatService {
 }
 
 func (s *ThreatService) Get(md5 string) (domain.Threat, error) {
-	normalizedMD5, err := normlizeMD5(md5)
+	normalizedMD5, err := normalizeMD5(md5)
 	if err != nil {
 		return domain.Threat{}, err
 	}
@@ -27,7 +27,7 @@ func (s *ThreatService) Get(md5 string) (domain.Threat, error) {
 }
 
 func (s *ThreatService) Create(threat domain.Threat) (domain.Threat, error) {
-	normalizedMD5, err := normlizeMD5(threat.MD5)
+	normalizedMD5, err := normalizeMD5(threat.MD5)
 	if err != nil {
 		return domain.Threat{}, err
 	}
@@ -41,7 +41,7 @@ func (s *ThreatService) Create(threat domain.Threat) (domain.Threat, error) {
 }
 
 func (s *ThreatService) Update(md5 string, threat domain.Threat) (domain.Threat, error) {
-	normalizedMD5, err := normlizeMD5(md5)
+	normalizedMD5, err := normalizeMD5(md5)
 	if err != nil {
 		return domain.Threat{}, err
 	}

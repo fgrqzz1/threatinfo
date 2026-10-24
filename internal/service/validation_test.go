@@ -24,7 +24,7 @@ func TestNormalizeMD5(t *testing.T) {
 		{"unicode", strings.Repeat("а", 16), false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := normlizeMD5(tc.input)
+			got, err := normalizeMD5(tc.input)
 			if tc.valid {
 				if err != nil || got != hash {
 					t.Fatalf("got (%q, %v), want (%q, nil)", got, err, hash)

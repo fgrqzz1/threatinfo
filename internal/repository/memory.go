@@ -3,11 +3,12 @@ package repository
 import (
 	"errors"
 	"sync"
+
 	"threatinfo/internal/domain"
 )
 
 var (
-	ErrNotFound      = errors.New("Угрозу не найдена")
+	ErrNotFound      = errors.New("Угроза не найдена")
 	ErrAlreadyExists = errors.New("Угроза уже существует")
 )
 

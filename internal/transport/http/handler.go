@@ -4,6 +4,8 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"path"
+	"strings"
 
 	"threatinfo/internal/domain"
 	"threatinfo/internal/repository"
@@ -39,7 +41,19 @@ func (h *Handler) Routes() http.Handler {
 			Details: "Запрошенный путь не поддерживается",
 		})
 	})
-	return mux
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Reject paths ServeMux would otherwise redirect with an HTML body.
+		escapedPath := r.URL.EscapedPath()
+		cleanPath := path.Clean(escapedPath)
+		if cleanPath != "/" && strings.HasSuffix(escapedPath, "/") {
+			cleanPath += "/"
+		}
+		if cleanPath != escapedPath {
+			writeBadRequest(w, errors.New("путь должен быть без повторных слешей и сегментов . или .."))
+			return
+		}
+		mux.ServeHTTP(w, r)
+	})
 }
 
 func methodNotAllowed(allow string) http.HandlerFunc {

@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"reflect"
 	"time"
 
 	"threatinfo/internal/domain"
@@ -50,13 +52,16 @@ type ThreatUpdateRequest struct {
 func decodeJSON[T any](body io.Reader) (T, error) {
 	var zero T
 	decoder := json.NewDecoder(body)
-	decoder.DisallowUnknownFields()
 
-	var request *T
-	if err := decoder.Decode(&request); err != nil {
+	var raw json.RawMessage
+	if err := decoder.Decode(&raw); err != nil {
 		return zero, err
 	}
-	if request == nil {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return zero, err
+	}
+	if fields == nil {
 		return zero, errors.New("тело запроса должно быть JSON-объектом")
 	}
 
@@ -65,7 +70,24 @@ func decodeJSON[T any](body io.Reader) (T, error) {
 		return zero, errors.New("после JSON-объекта не должно быть дополнительных данных")
 	}
 
-	return *request, nil
+	// encoding/json also accepts case-insensitive matches. Check exact JSON
+	// tags first so that unknown keys are rejected as specified by OpenAPI.
+	requestType := reflect.TypeFor[T]()
+	allowed := make(map[string]bool, requestType.NumField())
+	for i := 0; i < requestType.NumField(); i++ {
+		allowed[requestType.Field(i).Tag.Get("json")] = true
+	}
+	for key := range fields {
+		if !allowed[key] {
+			return zero, fmt.Errorf("неизвестное поле: %s", key)
+		}
+	}
+
+	var request T
+	if err := json.Unmarshal(raw, &request); err != nil {
+		return zero, err
+	}
+	return request, nil
 }
 
 func threatFromFields(name, threatType, severity, description, detectedAt requestString) (domain.Threat, error) {

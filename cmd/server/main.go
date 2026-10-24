@@ -8,10 +8,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"threatinfo/internal/repository"
-	"threatinfo/internal/service"
 	"time"
 
+	"threatinfo/internal/repository"
+	"threatinfo/internal/service"
 	transport "threatinfo/internal/transport/http"
 )
 
@@ -22,14 +22,14 @@ func main() {
 }
 
 func run() error {
+	addr, err := loadHTTPAddr(".env")
+	if err != nil {
+		return err
+	}
+
 	repo := repository.NewMemoryRepository()
 	threatService := service.NewThreatService(repo)
 	handler := transport.NewHandler(threatService)
-
-	addr := os.Getenv("HTTP_ADDR")
-	if addr == "" {
-		addr = ":8080"
-	}
 
 	server := &http.Server{
 		Addr:              addr,

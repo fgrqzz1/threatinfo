@@ -4,14 +4,15 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
 	"threatinfo/internal/domain"
 )
 
 var ErrValidation = errors.New("Ошибка валидации")
 
-func normlizeMD5(md5 string) (string, error) {
+func normalizeMD5(md5 string) (string, error) {
 	if len(md5) != 32 {
-		return "", ErrValidation
+		return "", fmt.Errorf("%w: MD5 должен содержать 32 шестнадцатеричных ASCII-символа", ErrValidation)
 	}
 
 	for i := 0; i < len(md5); i++ {
@@ -20,7 +21,7 @@ func normlizeMD5(md5 string) (string, error) {
 		if !((c >= '0' && c <= '9') ||
 			(c >= 'a' && c <= 'f') ||
 			(c >= 'A' && c <= 'F')) {
-			return "", ErrValidation
+			return "", fmt.Errorf("%w: MD5 должен содержать 32 шестнадцатеричных ASCII-символа", ErrValidation)
 		}
 	}
 	return strings.ToLower(md5), nil
@@ -50,10 +51,6 @@ func validateThreat(threat domain.Threat) error {
 	default:
 		return fmt.Errorf("%w: Неверный уровень опасности", ErrValidation)
 	}
-
-	// if strings.TrimSpace(threat.Description) == "" {
-	// 	return fmt.Errorf("%w: Описание не должно быть пустым", ErrValidation)
-	// }
 
 	return nil
 }
