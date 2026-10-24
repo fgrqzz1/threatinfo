@@ -10,6 +10,7 @@ paths:
       summary: Создать новую запись об угрозе
       description: >
         Добавляет информацию об угрозе.
+        Поля md5, name и type обязательны.
         MD5 нормализуется в нижний регистр.
         Хеши, отличающиеся только регистром, считаются одинаковыми.
         Необязательные поля можно пропустить; null не допускается.
@@ -69,6 +70,7 @@ paths:
       summary: Обновить информацию об угрозе по MD5
       description: >
         Полностью заменяет изменяемые поля существующей угрозы.
+        Поля name и type обязательны.
         Необязательные поля, отсутствующие в запросе, очищаются.
         MD5 берётся только из пути и не изменяется.
         Передавать MD5 в теле запроса нельзя.
@@ -147,6 +149,7 @@ components:
       required:
         - md5
         - name
+        - type
       properties:
         md5:
           $ref: '#/components/schemas/MD5'
@@ -166,6 +169,7 @@ components:
       additionalProperties: false
       required:
         - name
+        - type
       properties:
         name:
           $ref: '#/components/schemas/ThreatName'
@@ -189,6 +193,7 @@ components:
       required:
         - md5
         - name
+        - type
       properties:
         md5:
           $ref: '#/components/schemas/MD5'
