@@ -39,3 +39,17 @@ func (s *ThreatService) Create(threat domain.Threat) (domain.Threat, error) {
 	threat.MD5 = normalizedMD5
 	return s.repo.Create(threat)
 }
+
+func (s *ThreatService) Update(md5 string, threat domain.Threat) (domain.Threat, error) {
+	normalizedMD5, err := normlizeMD5(md5)
+	if err != nil {
+		return domain.Threat{}, err
+	}
+
+	if err := validateThreat(threat); err != nil {
+		return domain.Threat{}, err
+	}
+
+	threat.MD5 = normalizedMD5
+	return s.repo.Update(threat)
+}
