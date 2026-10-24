@@ -1,0 +1,17 @@
+# Go build artifacts
+/bin/
+*.exe
+*.test
+*.out
+coverage.*
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Editors
+.idea/
